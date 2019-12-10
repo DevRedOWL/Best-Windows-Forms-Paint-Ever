@@ -19,9 +19,9 @@ namespace WinFormsPaint
      * Динамическая генерация палитры
      * Оптимизированное решения на кейсах (окно) 
      * Валидация всех входных данных
+     * Кнопка эскейп в форме отменяет последнее действие
      * 
      * Идеи:
-     * IDEA: Ctrl+Z                                 Идея: Сохранять предыдущее (или несколько) состояние битмапа перед рисовкой
      * IDEA: Толщина и поворот звезды        
      * IDEA: Прямоугольник как инструмент
      * IDEA: Нормальные иконки для окон
@@ -55,11 +55,7 @@ namespace WinFormsPaint
         public Form1()
         {
             InitializeComponent();
-            foreach (Control c in this.Controls)
-            {
-                if (c is MdiClient)
-                    c.BackColor = ColorTranslator.FromHtml("#FF274970");
-            }
+            foreach (Control c in this.Controls) if (c is MdiClient) c.BackColor = ColorTranslator.FromHtml("#FF274970"); // Костыль для назначения цвета MDI контроллеру          
         }
 
         // Генерация цветов при загрузке
@@ -78,7 +74,7 @@ namespace WinFormsPaint
             int[] DefaultBrushSizes = new int[] { 1, 4, 5, 6, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96 };
             for (int j = 0; j < DefaultBrushSizes.Length; j++)
             {
-                // Без этого не работает, не понимаю, нахрена компилятор помнит итератор, я же потерял ссылку, ну да ладно, подумаешь пара часиков ушла на решение
+                // Без этого не работает, не понимаю, нахрена компилятор помнит итератор, я же потерял ссылку, ну да ладно, подумаешь пара часиков ушло на решение
                 int fuck_my_brain = new int();
                 fuck_my_brain = j;
                 // А теперь к делу

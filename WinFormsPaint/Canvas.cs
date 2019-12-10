@@ -23,6 +23,7 @@ namespace WinFormsPaint
         private int[] MouseEnd = new int[2];        // X,Y конца пути
         private string LastState = "";              // Последнее состояние TODO: Перевести на энам
         GraphicsPath myPath = new GraphicsPath();   // Контур
+        Stack<Bitmap> Rollback = new Stack<Bitmap>();   // Откаты
         public int[] GetBmpSize() { return new int[] { bmp.Width, bmp.Height }; }   // Инкапсулируем размеры изображения
         #endregion
 
@@ -36,6 +37,7 @@ namespace WinFormsPaint
             PictureBox.Image = bmp;
             Graphics g = Graphics.FromImage(bmp);
             g.FillRectangle(Brushes.White, 0, 0, bmp.Width, bmp.Height);
+            Rollback.Push(new Bitmap(bmp)); // Пушим в стек
         }
 
         // Конструктор из файла
@@ -55,6 +57,7 @@ namespace WinFormsPaint
                 PictureBox.Width = bmp.Width;
                 PictureBox.Height = bmp.Height;
                 PictureBox.Image = bmp;
+                Rollback.Push(new Bitmap(bmp)); // Пушим в стек
             }
             catch (Exception)
             {
@@ -65,6 +68,7 @@ namespace WinFormsPaint
                 g.FillRectangle(Brushes.White, 0, 0, bmp.Width, bmp.Height);
                 // Уведомляем об ошибке загрузки
                 DialogResult dialogResult = MessageBox.Show("Загрузить файл не удалось, возможно это не изображение.", "Ошибка", MessageBoxButtons.OK);
+                Rollback.Push(new Bitmap(bmp)); // Пушим в стек
             }
         }
         #endregion
@@ -265,6 +269,7 @@ namespace WinFormsPaint
                     else
                         g.DrawPath(new Pen(Form1.PickedColor, Form1.BrushSize), myPath);
                     myPath.Reset();
+                    Rollback.Push(new Bitmap(bmp)); // Пушим в стек
                 }
                 else { } // Потеряли линию
             }
@@ -365,6 +370,23 @@ namespace WinFormsPaint
                 case DialogResult.Cancel: { e.Cancel = true; } break;
                 case DialogResult.Yes: { if (FilePath == "") SaveAs(); else JustSave(); } break;
                 case DialogResult.No: { } break;
+            }
+        }
+
+        private void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                myPath.Reset();
+                if (Rollback.Count > 0)
+                {
+                    var g = Graphics.FromImage(bmp);
+                    g.Clear(Color.White);
+                    g.DrawImage(Rollback.Pop(), 0, 0, bmp.Width, bmp.Height);
+                    PictureBox.Invalidate();
+                }
+                if (Rollback.Count == 0)
+                    Rollback.Push(new Bitmap(bmp)); // Пушим в стек
             }
         }
         #endregion

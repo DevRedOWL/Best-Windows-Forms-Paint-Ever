@@ -57,6 +57,7 @@
             this.Name = "Canvas";
             this.Text = "Рисунок";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Canvas_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Canvas_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
             this.ResumeLayout(false);
 

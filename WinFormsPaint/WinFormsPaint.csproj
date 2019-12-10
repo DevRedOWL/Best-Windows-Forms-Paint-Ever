@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1117BBEA-22F6-445E-BFF4-E590A25CD922}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>WinFormsPaint</RootNamespace>
     <AssemblyName>WinFormsPaint</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
