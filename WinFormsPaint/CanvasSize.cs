@@ -12,10 +12,12 @@ namespace WinFormsPaint
 {
     public partial class CanvasSize : Form
     {
+        #region Загрузка формы
         public CanvasSize()
         {
             InitializeComponent();
         }
+        #endregion
 
         #region Инкапсуляция полей ввода
         public int CanvasWidth

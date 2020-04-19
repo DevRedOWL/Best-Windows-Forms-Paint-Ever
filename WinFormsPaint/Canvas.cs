@@ -18,7 +18,7 @@ namespace WinFormsPaint
         #region Свойства
         public string FilePath = "";                // Путь к картинке
         private int oldX, oldY;                     // Прошлая точка
-        private Bitmap bmp;                         // Рабочий битмап
+        public Bitmap bmp;                         // Рабочий битмап
         private int[] MouseStart = new int[2];      // X,Y начала пути
         private int[] MouseEnd = new int[2];        // X,Y конца пути
         private string LastState = "";              // Последнее состояние TODO: Перевести на энам
@@ -26,6 +26,11 @@ namespace WinFormsPaint
         Stack<Bitmap> Rollback = new Stack<Bitmap>();   // Откаты
         public int[] GetBmpSize() { return new int[] { bmp.Width, bmp.Height }; }   // Инкапсулируем размеры изображения
         #endregion
+
+        public void UpdateImage()
+        {
+            //this.image
+        }
 
         #region Конструкторы
         // Базовый конструктор
@@ -400,6 +405,6 @@ namespace WinFormsPaint
             g.DrawImage(temp, TransformationRectangle);
             PictureBox.Invalidate();
         }
-        #endregion
+        #endregion       
     }
 }

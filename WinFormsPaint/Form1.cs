@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+// Для рефлексии
+using PluginInterface;
+using System.Reflection;
 
 namespace WinFormsPaint
 {
@@ -49,13 +52,16 @@ namespace WinFormsPaint
         public static int BrushSize = 5;                                                   // Размер кисти
         public static Color AnotherPickedColor = ColorTranslator.FromHtml("#FFFFFF00");    // Цвет "Другого цвета"
         public static Color PickedColor = ColorTranslator.FromHtml("#FF000000");           // Цвет по умолчанию, как вариант - (Color)new ColorConverter().ConvertFromString   
+        public static Dictionary<string, IPlugin> pluginsList = new Dictionary<string, IPlugin>(); //Словарь рефлексии
         #endregion
 
         #region Загрузка формы
         public Form1()
         {
             InitializeComponent();
-            foreach (Control c in this.Controls) if (c is MdiClient) c.BackColor = ColorTranslator.FromHtml("#FF274970"); // Костыль для назначения цвета MDI контроллеру          
+            foreach (Control c in this.Controls) if (c is MdiClient) c.BackColor = ColorTranslator.FromHtml("#FF274970"); // Костыль для назначения цвета MDI контроллеру   
+            // Обновляем список плагинов
+            FindPlugins();
         }
 
         // Генерация цветов при загрузке
@@ -282,8 +288,63 @@ namespace WinFormsPaint
             if (((Canvas)ActiveMdiChild).FilePath == "") ((Canvas)ActiveMdiChild).SaveAs(); else ((Canvas)ActiveMdiChild).JustSave();
         }
         #endregion
-    }
 
+        #region Рефлек$$ия
+        void FindPlugins()
+        {
+            /** 
+             * То что код 1 в 1 слизан с источника в виде вордовского файла еще не значит, что я не понял, как оно работает.
+             * Кстати, классная технология, давно искал способы как бы безопасно (ну или почти (если позднее связывание вообще 
+             * можно назвать безопасным (ахах, зацените каламбур "типа-безопасно" (гы, рефлексирую над рефлексией)))).
+             * Скобочная последовательность сверху, между прочим, правильная.
+             **/
+
+            // папка с плагинами
+            string folder = System.AppDomain.CurrentDomain.BaseDirectory;
+            Console.WriteLine(folder);
+
+            // dll-файлы в этой папке
+            string[] files = System.IO.Directory.GetFiles(folder, "*.dll");
+
+            foreach (string file in files)
+                try
+                {
+                    Assembly assembly = Assembly.LoadFile(file);
+
+                    foreach (Type type in assembly.GetTypes())
+                    {
+                        Type iface = type.GetInterface("PluginInterface.IPlugin");
+
+                        if (iface != null)
+                        {
+                            IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
+                            Console.WriteLine(plugin + plugin.Name + plugin.GetType());
+
+                            if(plugin != null)
+                                pluginsList.Add(plugin.Name, plugin);
+
+                            var newItem = new ToolStripMenuItem() { Text = plugin.Name };
+                            newItem.DropDownOpening += new System.EventHandler((sender, e)=> 
+                            {
+                                if(ActiveMdiChild != null)
+                                {
+                                    plugin.Transform((ActiveMdiChild as Canvas).bmp);
+                                    (ActiveMdiChild as Canvas).PictureBox.Image = (ActiveMdiChild as Canvas).bmp;
+                                }
+
+                            });
+                            плагиныToolStripMenuItem.DropDownItems.Add(newItem);
+
+                        }
+                    }
+                }
+                catch (StackOverflowException ex)
+                {
+                    MessageBox.Show("Произошла ошибка при загрузке плагина\n" + ex.Message + '\n' + ex.StackTrace);
+                }
+        }
+        #endregion
+    }
 
     #region Попытка добавить трекбар в меню [Безуспешно]
     //[ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.MenuStrip | ToolStripItemDesignerAvailability.ContextMenuStrip)]

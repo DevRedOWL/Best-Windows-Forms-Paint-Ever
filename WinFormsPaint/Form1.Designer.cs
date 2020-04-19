@@ -69,6 +69,7 @@ namespace WinFormsPaint
             this.оПрограммеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.плагиныToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
@@ -90,31 +91,31 @@ namespace WinFormsPaint
             // PaletteRed
             // 
             this.PaletteRed.Name = "PaletteRed";
-            this.PaletteRed.Size = new System.Drawing.Size(216, 26);
+            this.PaletteRed.Size = new System.Drawing.Size(162, 26);
             this.PaletteRed.Text = "Красный";
             // 
             // PaletteGreen
             // 
             this.PaletteGreen.Name = "PaletteGreen";
-            this.PaletteGreen.Size = new System.Drawing.Size(216, 26);
+            this.PaletteGreen.Size = new System.Drawing.Size(162, 26);
             this.PaletteGreen.Text = "Зеленый";
             // 
             // PaletteBlue
             // 
             this.PaletteBlue.Name = "PaletteBlue";
-            this.PaletteBlue.Size = new System.Drawing.Size(216, 26);
+            this.PaletteBlue.Size = new System.Drawing.Size(162, 26);
             this.PaletteBlue.Text = "Синий";
             // 
             // PaletteBlack
             // 
             this.PaletteBlack.Name = "PaletteBlack";
-            this.PaletteBlack.Size = new System.Drawing.Size(216, 26);
+            this.PaletteBlack.Size = new System.Drawing.Size(162, 26);
             this.PaletteBlack.Text = "Черный";
             // 
             // PaletteAnother
             // 
             this.PaletteAnother.Name = "PaletteAnother";
-            this.PaletteAnother.Size = new System.Drawing.Size(216, 26);
+            this.PaletteAnother.Size = new System.Drawing.Size(162, 26);
             this.PaletteAnother.Text = "Другой...";
             this.PaletteAnother.Click += new System.EventHandler(this.PaletteAnother_Click);
             // 
@@ -378,7 +379,8 @@ namespace WinFormsPaint
             this.файлToolStripMenuItem,
             this.рисунокToolStripMenuItem,
             this.окноToolStripMenuItem,
-            this.справкаToolStripMenuItem});
+            this.справкаToolStripMenuItem,
+            this.плагиныToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.MdiWindowListItem = this.окноToolStripMenuItem;
             this.menuStrip1.Name = "menuStrip1";
@@ -386,6 +388,12 @@ namespace WinFormsPaint
             this.menuStrip1.Size = new System.Drawing.Size(1211, 35);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
+            // 
+            // плагиныToolStripMenuItem
+            // 
+            this.плагиныToolStripMenuItem.Name = "плагиныToolStripMenuItem";
+            this.плагиныToolStripMenuItem.Size = new System.Drawing.Size(92, 25);
+            this.плагиныToolStripMenuItem.Text = "Плагины";
             // 
             // Form1
             // 
@@ -452,6 +460,7 @@ namespace WinFormsPaint
         private System.Windows.Forms.ToolStripMenuItem справкаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem оПрограммеToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem плагиныToolStripMenuItem;
     }
 }
 
