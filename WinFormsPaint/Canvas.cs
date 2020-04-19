@@ -18,7 +18,7 @@ namespace WinFormsPaint
         #region Свойства
         public string FilePath = "";                // Путь к картинке
         private int oldX, oldY;                     // Прошлая точка
-        public Bitmap bmp;                         // Рабочий битмап
+        public Bitmap bmp;                          // Рабочий битмап
         private int[] MouseStart = new int[2];      // X,Y начала пути
         private int[] MouseEnd = new int[2];        // X,Y конца пути
         private string LastState = "";              // Последнее состояние TODO: Перевести на энам
@@ -27,18 +27,13 @@ namespace WinFormsPaint
         public int[] GetBmpSize() { return new int[] { bmp.Width, bmp.Height }; }   // Инкапсулируем размеры изображения
         #endregion
 
-        public void UpdateImage()
-        {
-            //this.image
-        }
-
         #region Конструкторы
         // Базовый конструктор
         public Canvas()
         {
             // Создаем пустой холст
             InitializeComponent();
-            bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
+            bmp = new Bitmap(PictureBox.Width, ClientSize.Height);
             PictureBox.Image = bmp;
             Graphics g = Graphics.FromImage(bmp);
             g.FillRectangle(Brushes.White, 0, 0, bmp.Width, bmp.Height);
@@ -53,7 +48,51 @@ namespace WinFormsPaint
             {
                 // Открываем только для чтения файл чтобы можно было записывать
                 using (var FileStream = File.OpenRead(FileName))
+                {
                     bmp = new Bitmap(FileStream);
+                    Image image = Image.FromFile(FileName);
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.propertyitem.id
+                    // https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-property-item-descriptions?redirectedfrom=MSDN
+                    // https://stackoverflow.com/questions/4983766/getting-gps-data-from-an-images-exif-in-c-sharp
+
+                    // Было весело это исследовать, благодарю
+                    // Для начало необходимо было получить объект из которого можно получить вообще геоданные
+                    // У image я нашел GetPropertyItem который позволяет получить метаданные изображения, здорово, но штука весьма низкоуровневая
+                    // В итоге удалось найти список значений (описан он в GDI+), которые нужно передавать в этот метод и описание возвращаемых значений
+                    // Работать с байт-массивом было, конечно, неприятно, но норм
+                    // Остается только вывести эти данные в нормальном виде, кстати, секунды ввобще жестоко представлены как-то, непонятно
+                    // Пару часов спустя, я все таки понял, что секунды хранятся в виде unsigned long, который обозначает умноженное на 100 значение секунд, жесть
+                    // Оказывается, не только секунды
+                    // Ну с LatRef и LongRef Оказалось проще, это всего лишь charcode символа строны света, ага да
+                    // Хочу теперь добавить перевод этих координат в гугловские и будет весело
+
+                    // TODO: Запилить отдельный интерфейс, чтобы все плагины могли поддерживаться, ага, да
+                    foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004 })
+                    {
+                        Console.Write(l1 + ": ");
+                        var propertyValue = image.GetPropertyItem(l1).Value;
+                        foreach (var l2 in propertyValue)
+                        {
+                            Console.Write(l2); Console.Write(' ');
+                        }
+                        Console.WriteLine();
+
+                        if (propertyValue.Length > 8)
+                        {
+                            Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
+                            Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
+                            Console.WriteLine("S: " + BitConverter.ToUInt32(propertyValue, 16) + '\n');
+                        }
+                        else
+                        {
+                            Console.WriteLine((char)propertyValue[0]);
+                        }
+
+                        // Запилить отдельный интерфейс под это
+                    }
+
+                    // Console.WriteLine(image.GetPropertyItem(0x0002).Value.ToString() + " " + image.GetPropertyItem(0x0004).Value.ToString());
+                }
                 // Устанавливаем путь и название рисунка
                 FilePath = FileName;
                 this.Text = FilePath.Split('\\')[FilePath.Split('\\').Length - 1];
@@ -67,7 +106,7 @@ namespace WinFormsPaint
             catch (Exception)
             {
                 // Создаем пустой холст
-                bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
+                bmp = new Bitmap(PictureBox.Width, ClientSize.Height);
                 PictureBox.Image = bmp;
                 Graphics g = Graphics.FromImage(bmp);
                 g.FillRectangle(Brushes.White, 0, 0, bmp.Width, bmp.Height);
@@ -87,6 +126,8 @@ namespace WinFormsPaint
             }
             set
             {
+                // ЖЫФТОНЭ УПРАВЛЕНИЙЭ ПАМИТЬЮ УТЕЧКА УТЕЧКА 
+                // Верните мне мои указатели это же жесть
                 PictureBox.Width = value;
                 Bitmap tbmp = new Bitmap(value, PictureBox.Width);
                 Graphics g = Graphics.FromImage(tbmp);
@@ -373,8 +414,8 @@ namespace WinFormsPaint
             switch (dialogResult)
             {
                 case DialogResult.Cancel: { e.Cancel = true; } break;
-                case DialogResult.Yes: { if (FilePath == "") SaveAs(); else JustSave(); } break;
-                case DialogResult.No: { } break;
+                case DialogResult.Yes: { if (FilePath == "") SaveAs(); else JustSave(); this.Dispose(); } break;
+                case DialogResult.No: { this.Dispose(); } break;
             }
         }
 
@@ -393,6 +434,11 @@ namespace WinFormsPaint
                 if (Rollback.Count == 0)
                     Rollback.Push(new Bitmap(bmp)); // Пушим в стек
             }
+        }
+
+        private void Canvas_Load(object sender, EventArgs e)
+        {
+
         }
         #endregion
 

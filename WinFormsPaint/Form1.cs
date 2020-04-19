@@ -320,13 +320,13 @@ namespace WinFormsPaint
                             IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
                             Console.WriteLine(plugin + plugin.Name + plugin.GetType());
 
-                            if(plugin != null)
+                            if (plugin != null)
                                 pluginsList.Add(plugin.Name, plugin);
 
                             var newItem = new ToolStripMenuItem() { Text = plugin.Name };
-                            newItem.DropDownOpening += new System.EventHandler((sender, e)=> 
+                            newItem.Click += new System.EventHandler((sender, e) =>
                             {
-                                if(ActiveMdiChild != null)
+                                if (ActiveMdiChild != null)
                                 {
                                     plugin.Transform((ActiveMdiChild as Canvas).bmp);
                                     (ActiveMdiChild as Canvas).PictureBox.Image = (ActiveMdiChild as Canvas).bmp;
@@ -334,7 +334,6 @@ namespace WinFormsPaint
 
                             });
                             плагиныToolStripMenuItem.DropDownItems.Add(newItem);
-
                         }
                     }
                 }
@@ -342,8 +341,36 @@ namespace WinFormsPaint
                 {
                     MessageBox.Show("Произошла ошибка при загрузке плагина\n" + ex.Message + '\n' + ex.StackTrace);
                 }
+
+
+            var non = new ToolStripMenuItem() { Text = "Новый плагин" };
+            non.Click += new System.EventHandler((sender, e) =>
+            {
+                if (ActiveMdiChild != null)
+                {
+
+                    // code here;
+                    Graphics graphics = Graphics.FromImage((ActiveMdiChild as Canvas).bmp);
+                    SizeF size = graphics.MeasureString("Тестовый текст", new Font("Tempus Sans ITC", 12f, FontStyle.Bold));
+                    graphics.DrawString("Тестовый текст", new Font("Tempus Sans ITC", 12f, FontStyle.Bold), new SolidBrush(System.Drawing.Color.Red),
+                        (ActiveMdiChild as Canvas).bmp.Width - size.Width - 8, (ActiveMdiChild as Canvas).bmp.Height - size.Height);
+
+                    (ActiveMdiChild as Canvas).PictureBox.Image = (ActiveMdiChild as Canvas).bmp;
+                }
+
+            });
+            плагиныToolStripMenuItem.DropDownItems.Add(non);
         }
+
         #endregion
+
+        private void плагиныToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (ToolStripDropDownItem item in (sender as ToolStripDropDownItem).DropDownItems)
+            {
+                item.Enabled = !(ActiveMdiChild == null);
+            }
+        }
     }
 
     #region Попытка добавить трекбар в меню [Безуспешно]

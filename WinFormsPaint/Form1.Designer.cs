@@ -68,8 +68,8 @@ namespace WinFormsPaint
             this.справкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оПрограммеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.плагиныToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.menuStrip2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
@@ -394,6 +394,7 @@ namespace WinFormsPaint
             this.плагиныToolStripMenuItem.Name = "плагиныToolStripMenuItem";
             this.плагиныToolStripMenuItem.Size = new System.Drawing.Size(92, 25);
             this.плагиныToolStripMenuItem.Text = "Плагины";
+            this.плагиныToolStripMenuItem.Click += new System.EventHandler(this.плагиныToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -403,6 +404,7 @@ namespace WinFormsPaint
             this.ClientSize = new System.Drawing.Size(1211, 678);
             this.Controls.Add(this.menuStrip2);
             this.Controls.Add(this.menuStrip1);
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
