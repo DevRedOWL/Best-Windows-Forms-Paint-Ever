@@ -67,6 +67,7 @@ namespace WinFormsPaint
                     // Хочу теперь добавить перевод этих координат в гугловские и будет весело
 
                     // TODO: Запилить отдельный интерфейс, чтобы все плагины могли поддерживаться, ага, да
+                    // TODO: Добавить штуковину для чтения пнг, описать этот мыслительный процесс нормально и подвинуть один пробел в меню открытия
                     foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004 })
                     {
                         Console.Write(l1 + ": ");
@@ -81,7 +82,7 @@ namespace WinFormsPaint
                         {
                             Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
                             Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
-                            Console.WriteLine("S: " + BitConverter.ToUInt32(propertyValue, 16) + '\n');
+                            Console.WriteLine("S: " + ((double)BitConverter.ToUInt32(propertyValue, 16)/100) + '\n');
                         }
                         else
                         {
