@@ -50,49 +50,6 @@ namespace WinFormsPaint
                 using (var FileStream = File.OpenRead(FileName))
                 {
                     bmp = new Bitmap(FileStream);
-                    Image image = Image.FromFile(FileName);
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.propertyitem.id
-                    // https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-property-item-descriptions?redirectedfrom=MSDN
-                    // https://stackoverflow.com/questions/4983766/getting-gps-data-from-an-images-exif-in-c-sharp
-
-                    // Было весело это исследовать, благодарю
-                    // Для начало необходимо было получить объект из которого можно получить вообще геоданные
-                    // У image я нашел GetPropertyItem который позволяет получить метаданные изображения, здорово, но штука весьма низкоуровневая
-                    // В итоге удалось найти список значений (описан он в GDI+), которые нужно передавать в этот метод и описание возвращаемых значений
-                    // Работать с байт-массивом было, конечно, неприятно, но норм
-                    // Остается только вывести эти данные в нормальном виде, кстати, секунды ввобще жестоко представлены как-то, непонятно
-                    // Пару часов спустя, я все таки понял, что секунды хранятся в виде unsigned long, который обозначает умноженное на 100 значение секунд, жесть
-                    // Оказывается, не только секунды
-                    // Ну с LatRef и LongRef Оказалось проще, это всего лишь charcode символа строны света, ага да
-                    // Хочу теперь добавить перевод этих координат в гугловские и будет весело
-
-                    // TODO: Запилить отдельный интерфейс, чтобы все плагины могли поддерживаться, ага, да
-                    // TODO: Добавить штуковину для чтения пнг, описать этот мыслительный процесс нормально и подвинуть один пробел в меню открытия
-                    foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004 })
-                    {
-                        Console.Write(l1 + ": ");
-                        var propertyValue = image.GetPropertyItem(l1).Value;
-                        foreach (var l2 in propertyValue)
-                        {
-                            Console.Write(l2); Console.Write(' ');
-                        }
-                        Console.WriteLine();
-
-                        if (propertyValue.Length > 8)
-                        {
-                            Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
-                            Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
-                            Console.WriteLine("S: " + ((double)BitConverter.ToUInt32(propertyValue, 16)/100) + '\n');
-                        }
-                        else
-                        {
-                            Console.WriteLine((char)propertyValue[0]);
-                        }
-
-                        // Запилить отдельный интерфейс под это
-                    }
-
-                    // Console.WriteLine(image.GetPropertyItem(0x0002).Value.ToString() + " " + image.GetPropertyItem(0x0004).Value.ToString());
                 }
                 // Устанавливаем путь и название рисунка
                 FilePath = FileName;
@@ -161,9 +118,11 @@ namespace WinFormsPaint
         // Сейв ас
         public void SaveAs()
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.AddExtension = true;
-            dlg.Filter = "Windows Bitmap (*.bmp)|*.bmp|Файлы JPEG (*.jpg)|*.jpg|Изображения PNG (*.png)|*.png";
+            SaveFileDialog dlg = new SaveFileDialog
+            {
+                AddExtension = true,
+                Filter = "Windows Bitmap (*.bmp)|*.bmp|Файлы JPEG (*.jpg)|*.jpg|Изображения PNG (*.png)|*.png"
+            };
             ImageFormat[] ff = { ImageFormat.Bmp, ImageFormat.Jpeg, ImageFormat.Png };
             if (dlg.ShowDialog() == DialogResult.OK)
             {

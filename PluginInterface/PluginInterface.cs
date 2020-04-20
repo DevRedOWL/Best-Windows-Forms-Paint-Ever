@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace PluginInterface
 {
+    public interface IPlugin
+    {
+        string Name { get; }
+        string Author { get; }
+        void Transform(Bitmap bitmap);
+    }
+
     public class VersionAttribute : Attribute
     {
         public int Major { get; private set; }
@@ -25,13 +32,5 @@ namespace PluginInterface
         }
     }
 
-    public interface IPlugin
-    {
-        string Name { get; }
-
-        string Author { get; }
-
-        void Transform(Bitmap app);
-    }
-
 }
+

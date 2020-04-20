@@ -8,11 +8,10 @@ using PluginInterface;
 
 namespace MyPlugin
 {
-    // До дедлайна оставалось 2 минуты и мне ничего не оставалось, как залить этот плагин
     [Version(1, 0, 0, 2)]
     public class FlipVertical : IPlugin
     {
-        string IPlugin.Name => "FlipVerticalPlugin";
+        string IPlugin.Name => "Flip Vertical";
         string IPlugin.Author => "Vyacheslav Lanin";
 
         void IPlugin.Transform(Bitmap bitmap)

@@ -62,6 +62,7 @@ namespace WinFormsPaint
             foreach (Control c in this.Controls) if (c is MdiClient) c.BackColor = ColorTranslator.FromHtml("#FF274970"); // Костыль для назначения цвета MDI контроллеру   
             // Обновляем список плагинов
             FindPlugins();
+            testFlex();
         }
 
         // Генерация цветов при загрузке
@@ -268,12 +269,16 @@ namespace WinFormsPaint
         #region Манипуляции с файлом
         private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Windows Bitmap (*.bmp)|*.bmp| Файлы JPEG (*.jpeg, *.jpg)|*.jpeg;*.jpg|Все файлы ()*.*|*.*";
+            OpenFileDialog dlg = new OpenFileDialog
+            {
+                Filter = "Windows Bitmap (*.bmp)|*.bmp|Файлы JPEG (*.jpeg, *.jpg)|*.jpeg;*.jpg|Все файлы ()*.*|*.*"
+            };
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                Canvas frmChild = new Canvas(dlg.FileName);
-                frmChild.MdiParent = this;
+                Canvas frmChild = new Canvas(dlg.FileName)
+                {
+                    MdiParent = this
+                };
                 frmChild.Show();
             }
         }
@@ -337,7 +342,7 @@ namespace WinFormsPaint
                         }
                     }
                 }
-                catch (StackOverflowException ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("Произошла ошибка при загрузке плагина\n" + ex.Message + '\n' + ex.StackTrace);
                 }
@@ -363,6 +368,66 @@ namespace WinFormsPaint
         }
 
         #endregion
+
+        public void testFlex()
+        {
+            Image image = Image.FromFile(@"C:\Users\vdape\Desktop\england-london-bridge.jpg");
+            // И так я впринципе выяснил что в плагин можно было бы передать метаданные в тком виде, еще плагин будет содержать метод
+            // GetPropById чтобы выбирать таким же образом как снизу пропсу с конкрутным идом, такие дела,
+            // А вообще для этого можно заюзать так то отдельный класс и подключить его как либу, будет здорово
+            foreach (var item in image.PropertyItems)
+            {
+                if(item.Id == 0x0002)
+                    Console.WriteLine(item.Value[0]);
+            }
+            // https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.propertyitem.id
+            // https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-property-item-descriptions?redirectedfrom=MSDN
+            // https://stackoverflow.com/questions/4983766/getting-gps-data-from-an-images-exif-in-c-sharp
+            // https://medium.com/@dannyc/get-image-file-metadata-in-c-using-net-88603e6da63f
+
+            // Было весело это исследовать, благодарю
+            // Для начало необходимо было получить объект из которого можно получить вообще геоданные
+            // У image я нашел GetPropertyItem который позволяет получить метаданные изображения, здорово, но штука весьма низкоуровневая
+            // В итоге удалось найти список значений (описан он в GDI+), которые нужно передавать в этот метод и описание возвращаемых значений
+            // Работать с байт-массивом было, конечно, неприятно, но норм
+            // Остается только вывести эти данные в нормальном виде, кстати, секунды ввобще жестоко представлены как-то, непонятно
+            // Пару часов спустя, я все таки понял, что секунды хранятся в виде unsigned long, который обозначает умноженное на 100 значение секунд, жесть
+            // Оказывается, не только секунды
+            // Ну с LatRef и LongRef Оказалось проще, это всего лишь charcode символа строны света, ага да
+            // Хочу теперь добавить перевод этих координат в гугловские и будет весело
+
+            // TODO: Навешивать геоданные устройства, если гео изображения нет
+            // TODO: Запилить отдельный интерфейс, чтобы все плагины могли поддерживаться, ага, да
+            // TODO: Добавить штуковину для чтения пнг, описать этот мыслительный процесс нормально и подвинуть один пробел в меню открытия
+            foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004 })
+            {
+                Console.Write(l1 + ": ");
+                var propertyValue = image.GetPropertyItem(l1).Value;
+                if (propertyValue != null)
+                {
+                    foreach (var l2 in propertyValue)
+                    {
+                        Console.Write(l2); Console.Write(' ');
+                    }
+                    Console.WriteLine();
+
+                    if (propertyValue.Length > 8)
+                    {
+                        Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
+                        Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
+                        Console.WriteLine("S: " + ((double)BitConverter.ToUInt32(propertyValue, 16) / 100) + '\n');
+                    }
+                    else
+                    {
+                        Console.WriteLine((char)propertyValue[0]);
+                    }
+                }
+
+                // Запилить отдельный интерфейс под это
+            }
+
+            // Console.WriteLine(image.GetPropertyItem(0x0002).Value.ToString() + " " + image.GetPropertyItem(0x0004).Value.ToString());
+        }
 
         private void плагиныToolStripMenuItem_Click(object sender, EventArgs e)
         {
