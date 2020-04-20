@@ -280,7 +280,10 @@ namespace WinFormsPaint
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
-                Filter = "Windows Bitmap (*.bmp)|*.bmp|Файлы JPEG (*.jpeg, *.jpg)|*.jpeg;*.jpg|Все файлы ()*.*|*.*"
+                Filter = "Файлы JPEG (*.jpeg, *.jpg)|*.jpeg;*.jpg" +
+                        "|Изображение PNG (*.png)|*.png" +
+                        "|Windows Bitmap (*.bmp)|*.bmp" +
+                        "|Все файлы (*.*)|*.*"
             };
             if (dlg.ShowDialog() == DialogResult.OK)
             {
