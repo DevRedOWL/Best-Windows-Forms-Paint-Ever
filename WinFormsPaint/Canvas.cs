@@ -397,11 +397,6 @@ namespace WinFormsPaint
                     Rollback.Push(new Bitmap(bmp)); // Пушим в стек
             }
         }
-
-        private void Canvas_Load(object sender, EventArgs e)
-        {
-
-        }
         #endregion
 
         #region Скейлинг
