@@ -47,10 +47,12 @@ namespace WinFormsPaint
             try
             {
                 // Открываем только для чтения файл чтобы можно было записывать
-                using (var FileStream = File.OpenRead(FileName))
-                {
-                    bmp = new Bitmap(FileStream);
-                }
+                Image image = Image.FromFile(FileName);
+                bmp = new Bitmap(image);
+                // Задаем метаданные изображения, ы
+                foreach (var pitem in image.PropertyItems)
+                    bmp.SetPropertyItem(pitem);
+                image.Dispose();
                 // Устанавливаем путь и название рисунка
                 FilePath = FileName;
                 this.Text = FilePath.Split('\\')[FilePath.Split('\\').Length - 1];

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("HSE Paint")]
-[assembly: AssemblyDescription("Лабораторная работа номер 2")]
+[assembly: AssemblyDescription("Лабораторная работа, но уже с рефлексией")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Varentsov Daniel")]
 [assembly: AssemblyProduct("HSE Paint")]
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 // Можно задать все значения или принять номер сборки и номер редакции по умолчанию.
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: NeutralResourcesLanguage("ru")]
 

@@ -23,6 +23,7 @@ namespace WinFormsPaint
      * Оптимизированное решения на кейсах (окно) 
      * Валидация всех входных данных
      * Кнопка эскейп в форме отменяет последнее действие
+     * Передача метаданных в битмап для трансформации плагинами
      * 
      * Идеи:
      * IDEA: Толщина и поворот звезды        
@@ -62,7 +63,6 @@ namespace WinFormsPaint
             foreach (Control c in this.Controls) if (c is MdiClient) c.BackColor = ColorTranslator.FromHtml("#FF274970"); // Костыль для назначения цвета MDI контроллеру   
             // Обновляем список плагинов
             FindPlugins();
-            testFlex();
         }
 
         // Генерация цветов при загрузке
@@ -237,6 +237,15 @@ namespace WinFormsPaint
             сверхуВнизToolStripMenuItem.Enabled = !(ActiveMdiChild == null);
             упорядочитьЗначкиToolStripMenuItem.Enabled = !(ActiveMdiChild == null);
         }
+
+        private void плагиныToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (object item in (sender as ToolStripDropDownItem).DropDownItems)
+            {
+                if (item is ToolStripDropDownItem)
+                    (item as ToolStripDropDownItem).Enabled = !(ActiveMdiChild == null);
+            }
+        }
         #endregion
 
         #region Панель "окно"
@@ -347,95 +356,25 @@ namespace WinFormsPaint
                     MessageBox.Show("Произошла ошибка при загрузке плагина\n" + ex.Message + '\n' + ex.StackTrace);
                 }
 
+            #region Отрывок кода для отладки плагина
+            //var debugPlugin = new ToolStripMenuItem() { Text = "Отладочный плагин" };
+            //debugPlugin.Click += new System.EventHandler((sender, e) =>
+            //{
+            //    if (ActiveMdiChild != null)
+            //    {
+            //        Graphics graphics = Graphics.FromImage((ActiveMdiChild as Canvas).bmp);
 
-            var non = new ToolStripMenuItem() { Text = "Новый плагин" };
-            non.Click += new System.EventHandler((sender, e) =>
-            {
-                if (ActiveMdiChild != null)
-                {
 
-                    // code here;
-                    Graphics graphics = Graphics.FromImage((ActiveMdiChild as Canvas).bmp);
-                    SizeF size = graphics.MeasureString("Тестовый текст", new Font("Tempus Sans ITC", 12f, FontStyle.Bold));
-                    graphics.DrawString("Тестовый текст", new Font("Tempus Sans ITC", 12f, FontStyle.Bold), new SolidBrush(System.Drawing.Color.Red),
-                        (ActiveMdiChild as Canvas).bmp.Width - size.Width - 8, (ActiveMdiChild as Canvas).bmp.Height - size.Height);
+            //        (ActiveMdiChild as Canvas).PictureBox.Image = (ActiveMdiChild as Canvas).bmp;
+            //    }
 
-                    (ActiveMdiChild as Canvas).PictureBox.Image = (ActiveMdiChild as Canvas).bmp;
-                }
-
-            });
-            плагиныToolStripMenuItem.DropDownItems.Add(non);
+            //});
+            //плагиныToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            //плагиныToolStripMenuItem.DropDownItems.Add(debugPlugin);
+            #endregion
         }
 
         #endregion
-
-        public void testFlex()
-        {
-            Image image = Image.FromFile(@"C:\Users\vdape\Desktop\england-london-bridge.jpg");
-            // И так я впринципе выяснил что в плагин можно было бы передать метаданные в тком виде, еще плагин будет содержать метод
-            // GetPropById чтобы выбирать таким же образом как снизу пропсу с конкрутным идом, такие дела,
-            // А вообще для этого можно заюзать так то отдельный класс и подключить его как либу, будет здорово
-            foreach (var item in image.PropertyItems)
-            {
-                if(item.Id == 0x0002)
-                    Console.WriteLine(item.Value[0]);
-            }
-            // https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.propertyitem.id
-            // https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-constant-property-item-descriptions?redirectedfrom=MSDN
-            // https://stackoverflow.com/questions/4983766/getting-gps-data-from-an-images-exif-in-c-sharp
-            // https://medium.com/@dannyc/get-image-file-metadata-in-c-using-net-88603e6da63f
-
-            // Было весело это исследовать, благодарю
-            // Для начало необходимо было получить объект из которого можно получить вообще геоданные
-            // У image я нашел GetPropertyItem который позволяет получить метаданные изображения, здорово, но штука весьма низкоуровневая
-            // В итоге удалось найти список значений (описан он в GDI+), которые нужно передавать в этот метод и описание возвращаемых значений
-            // Работать с байт-массивом было, конечно, неприятно, но норм
-            // Остается только вывести эти данные в нормальном виде, кстати, секунды ввобще жестоко представлены как-то, непонятно
-            // Пару часов спустя, я все таки понял, что секунды хранятся в виде unsigned long, который обозначает умноженное на 100 значение секунд, жесть
-            // Оказывается, не только секунды
-            // Ну с LatRef и LongRef Оказалось проще, это всего лишь charcode символа строны света, ага да
-            // Хочу теперь добавить перевод этих координат в гугловские и будет весело
-
-            // TODO: Навешивать геоданные устройства, если гео изображения нет
-            // TODO: Запилить отдельный интерфейс, чтобы все плагины могли поддерживаться, ага, да
-            // TODO: Добавить штуковину для чтения пнг, описать этот мыслительный процесс нормально и подвинуть один пробел в меню открытия
-            foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004 })
-            {
-                Console.Write(l1 + ": ");
-                var propertyValue = image.GetPropertyItem(l1).Value;
-                if (propertyValue != null)
-                {
-                    foreach (var l2 in propertyValue)
-                    {
-                        Console.Write(l2); Console.Write(' ');
-                    }
-                    Console.WriteLine();
-
-                    if (propertyValue.Length > 8)
-                    {
-                        Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
-                        Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
-                        Console.WriteLine("S: " + ((double)BitConverter.ToUInt32(propertyValue, 16) / 100) + '\n');
-                    }
-                    else
-                    {
-                        Console.WriteLine((char)propertyValue[0]);
-                    }
-                }
-
-                // Запилить отдельный интерфейс под это
-            }
-
-            // Console.WriteLine(image.GetPropertyItem(0x0002).Value.ToString() + " " + image.GetPropertyItem(0x0004).Value.ToString());
-        }
-
-        private void плагиныToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (ToolStripDropDownItem item in (sender as ToolStripDropDownItem).DropDownItems)
-            {
-                item.Enabled = !(ActiveMdiChild == null);
-            }
-        }
     }
 
     #region Попытка добавить трекбар в меню [Безуспешно]
@@ -450,5 +389,57 @@ namespace WinFormsPaint
     //    }
     //}
     #endregion
+    #region Исследование представлений геоданных [Успешно]
+    /*
+    public void testFlex()
+    {
+        Image image = Image.FromFile(@"C:\Users\vdape\Desktop\england-london-bridge.jpg");
+        var bitmap = new Bitmap(image);
+        // Задаем
+        foreach (var pitem in image.PropertyItems)
+            bitmap.SetPropertyItem(pitem);
+        image.Dispose();
 
+
+        foreach (var item in bitmap.PropertyItems)
+        {
+            if (item.Id == 0x0002)
+                Console.WriteLine(item.Value[0]);
+        }
+
+        // TODO: Навешивать геоданные устройства, если гео изображения нет
+        foreach (var l1 in new int[] { 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006 })
+        {
+            Console.Write(l1 + ": ");
+            var propertyValue = bitmap.GetPropertyItem(l1).Value;
+            if (propertyValue != null)
+            {
+                foreach (var l2 in propertyValue)
+                {
+                    Console.Write(l2); Console.Write(' ');
+                }
+                Console.WriteLine();
+
+                if (propertyValue.Length > 8)
+                {
+                    Console.WriteLine("D: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
+                    Console.WriteLine("M: " + BitConverter.ToUInt32(propertyValue, 8) + '\n');
+                    Console.WriteLine("S: " + ((double)BitConverter.ToUInt32(propertyValue, 16) / 100) + '\n');
+                }
+                else if (propertyValue.Length == 8)
+                {
+                    Console.WriteLine("A: " + BitConverter.ToUInt32(propertyValue, 0) + '\n');
+                }
+                else
+                {
+                    Console.WriteLine((char)propertyValue[0]);
+                }
+            }
+
+        }
+
+        // Console.WriteLine(image.GetPropertyItem(0x0002).Value.ToString() + " " + image.GetPropertyItem(0x0004).Value.ToString());
+    }
+    */
+    #endregion
 }
